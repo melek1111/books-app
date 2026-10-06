@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Books</h1>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Year</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for book in books %}
+    <tr>
+        <td>{{ book.id }}</td>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.year }}</td>
+
+        <td>
+            <a href="{{ url_for('update_book', book_id=book.id) }}">
+                Edit
+            </a>
+
+            <a href="{{ url_for('delete_book', book_id=book.id) }}">
+                Delete
+            </a>
+
+            <a href="{{ url_for('get_book', book_id=book.id) }}">
+                Get Book
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

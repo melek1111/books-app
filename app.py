@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
@@ -18,35 +18,38 @@ class Book(db.Model):
     author = db.Column(db.String(255), nullable=False)
     year = db.Column(db.Integer, nullable=False)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "author": self.author,
-            "year": self.year
-        }
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/books")
+def books():
+    books = db.session.scalars(
+        db.select(Book).order_by(Book.id)
+    ).all()
+
+    return render_template("books.html", books=books)
 
 
 @app.route("/book", methods=["GET", "POST"])
 def create_book():
     if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        author = request.form.get("author", "").strip()
-        year = request.form.get("year", "").strip()
+        title = request.form["title"]
+        author = request.form["author"]
+        year = int(request.form["year"])
 
-        if not title or not author or not year:
-            return "ყველა ველის შევსება სავალდებულოა.", 400
+        book = Book(
+            title=title,
+            author=author,
+            year=year
+        )
 
-        try:
-            year = int(year)
-        except ValueError:
-            return "წელი უნდა იყოს რიცხვი.", 400
-
-        book = Book(title=title, author=author, year=year)
         db.session.add(book)
         db.session.commit()
 
-        return redirect(url_for("get_books"))
+        return redirect(url_for("books"))
 
     return render_template("create_book.html")
 
@@ -56,78 +59,41 @@ def update_book(book_id):
     book = db.session.get(Book, book_id)
 
     if book is None:
-        return jsonify({"error": "Book not found"}), 404
+        return "Book not found", 404
 
     if request.method == "POST":
-        title = request.form.get("title", "").strip()
-        author = request.form.get("author", "").strip()
-        year = request.form.get("year", "").strip()
-
-        if not title or not author or not year:
-            return "ყველა ველის შევსება სავალდებულოა.", 400
-
-        try:
-            year = int(year)
-        except ValueError:
-            return "წელი უნდა იყოს რიცხვი.", 400
-
-        book.title = title
-        book.author = author
-        book.year = year
+        book.title = request.form["title"]
+        book.author = request.form["author"]
+        book.year = int(request.form["year"])
 
         db.session.commit()
-        return redirect(url_for("get_book", book_id=book.id))
 
-    return f"""
-    <h1>Update Book</h1>
-    <form method="POST">
-        <label>Title:</label><br>
-        <input type="text" name="title" value="{book.title}" required><br><br>
+        return redirect(url_for("books"))
 
-        <label>Author:</label><br>
-        <input type="text" name="author" value="{book.author}" required><br><br>
-
-        <label>Year:</label><br>
-        <input type="number" name="year" value="{book.year}" required><br><br>
-
-        <button type="submit">Update</button>
-    </form>
-    """
+    return render_template("update_book.html", book=book)
 
 
-@app.route("/get_book/<int:book_id>", methods=["GET"])
-def get_book(book_id):
-    book = db.session.get(Book, book_id)
-
-    if book is None:
-        return jsonify({"error": "Book not found"}), 404
-
-    return jsonify(book.to_dict())
-
-
-@app.route("/books", methods=["GET"])
-def get_books():
-    books = db.session.scalars(
-        db.select(Book).order_by(Book.id)
-    ).all()
-
-    return jsonify([book.to_dict() for book in books])
-
-
-@app.route("/delete_book/<int:book_id>", methods=["DELETE"])
+@app.route("/delete_book/<int:book_id>")
 def delete_book(book_id):
     book = db.session.get(Book, book_id)
 
     if book is None:
-        return jsonify({"error": "Book not found"}), 404
+        return "Book not found", 404
 
     db.session.delete(book)
     db.session.commit()
 
-    return jsonify({
-        "message": "Book deleted successfully",
-        "book": book.to_dict()
-    })
+    return redirect(url_for("books"))
+
+
+@app.route("/get_book/<int:book_id>")
+def get_book(book_id):
+    book = db.session.get(Book, book_id)
+
+    if book is None:
+        return "Book not found", 404
+
+    return render_template("get_book.html", book=book)
 
 
 if __name__ == "__main__":

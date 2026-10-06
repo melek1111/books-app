@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Book Details</h1>
+
+<p><strong>ID:</strong> {{ book.id }}</p>
+<p><strong>Title:</strong> {{ book.title }}</p>
+<p><strong>Author:</strong> {{ book.author }}</p>
+<p><strong>Year:</strong> {{ book.year }}</p>
+
+<br>
+
+<a href="{{ url_for('books') }}">Back to Books</a>
+
+{% endblock %}
