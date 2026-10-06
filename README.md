@@ -2,21 +2,21 @@
 
 Flask CRUD project for managing books.
 
-## Project structure
+## Project Structure
 
 ```text
 /books-app
-    /templates
-        create_book.html
-    /migrations
-        /versions
-    app.py
-    config.py
-    requirements.txt
-    README.md
+├── templates/
+│   └── create_book.html
+├── migrations/
+│   └── versions/
+├── app.py
+├── config.py
+├── requirements.txt
+└── README.md
 ```
 
-## 1. Create the MySQL database
+## 1. Create the MySQL Database
 
 Open MySQL and run:
 
@@ -26,49 +26,51 @@ CREATE DATABASE lesson35_hw;
 
 The `books` table is created through Flask-Migrate.
 
-## 2. Configure database connection
+## 2. Configure Database Connection
 
-Open `config.py` and change:
+Create a `.env` file in the project root:
 
-```python
-mysql+pymysql://root:password@localhost/lesson35_hw
+```env
+DATABASE_URL=mysql+pymysql://root:YOUR_PASSWORD@localhost/lesson35_hw
 ```
 
-For example, if your MySQL root user has no password:
+Replace `YOUR_PASSWORD` with your MySQL root password.
 
-```python
-mysql+pymysql://root:@localhost/lesson35_hw
-```
+The `.env` file is excluded from Git using `.gitignore`.
 
-## 3. Install dependencies
+## 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 4. Initialize migrations
+## 4. Apply Database Migration
 
-If the included migration folder is not yet initialized in your environment:
-
-```bash
-flask --app app db init
-```
-
-Then create a migration:
+Apply the existing migration:
 
 ```bash
-flask --app app db migrate -m "create books table"
+flask db upgrade
 ```
 
-Apply it:
+To check whether the database schema is up to date:
 
 ```bash
-flask --app app db upgrade
+flask db check
 ```
 
-Alternatively, the included `migrations/versions` directory contains a migration file that creates the `books` table.
+If the SQLAlchemy models are changed, create a new migration:
 
-## 5. Run the application
+```bash
+flask db migrate -m "description of changes"
+```
+
+Then apply it:
+
+```bash
+flask db upgrade
+```
+
+## 5. Run the Application
 
 ```bash
 python app.py
@@ -82,7 +84,7 @@ http://127.0.0.1:5000
 
 ## Endpoints
 
-### Add book
+### Add Book
 
 ```text
 GET  /book
@@ -91,7 +93,7 @@ POST /book
 
 Open `/book` in the browser to see the HTML form.
 
-### Update book
+### Update Book
 
 ```text
 GET  /update_book/<book_id>
@@ -104,7 +106,7 @@ Example:
 http://127.0.0.1:5000/update_book/1
 ```
 
-### Get one book
+### Get One Book
 
 ```text
 GET /get_book/<book_id>
@@ -116,31 +118,37 @@ Example:
 http://127.0.0.1:5000/get_book/1
 ```
 
-### Get all books
+### Get All Books
 
 ```text
 GET /books
 ```
 
-### Delete book
+Example:
+
+```text
+http://127.0.0.1:5000/books
+```
+
+### Delete Book
 
 ```text
 DELETE /delete_book/<book_id>
 ```
 
-Example with curl:
+Example with PowerShell:
 
-```bash
-curl -X DELETE http://127.0.0.1:5000/delete_book/1
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:5000/delete_book/1" -Method DELETE
 ```
 
-## Database table
+## Database Table
 
 The `books` table contains:
 
-| Field | Type |
-|---|---|
-| id | Integer, Primary Key |
-| title | String |
-| author | String |
-| year | Integer |
+| Field  | Type                 |
+| ------ | -------------------- |
+| id     | Integer, Primary Key |
+| title  | String               |
+| author | String               |
+| year   | Integer              |
