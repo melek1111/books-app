@@ -73,7 +73,7 @@ def update_book(book_id):
     return render_template("update_book.html", book=book)
 
 
-@app.route("/delete_book/<int:book_id>")
+@app.route("/delete_book/<int:book_id>", methods=["DELETE"])
 def delete_book(book_id):
     book = db.session.get(Book, book_id)
 
@@ -83,8 +83,7 @@ def delete_book(book_id):
     db.session.delete(book)
     db.session.commit()
 
-    return redirect(url_for("books"))
-
+    return "", 204
 
 @app.route("/get_book/<int:book_id>")
 def get_book(book_id):
