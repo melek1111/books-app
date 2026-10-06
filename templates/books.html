@@ -25,9 +25,9 @@
                 Edit
             </a>
 
-            <button onclick="deleteBook({{ book.id }})">
-    Delete
-</button>
+            <button onclick="deleteBook('{{ book.id }}')">
+                Delete
+            </button>
 
             <a href="{{ url_for('get_book', book_id=book.id) }}">
                 Get Book
@@ -36,6 +36,7 @@
     </tr>
     {% endfor %}
 </table>
+
 <script>
     function deleteBook(bookId) {
         fetch(`/delete_book/${bookId}`, {
@@ -50,4 +51,5 @@
         });
     }
 </script>
+
 {% endblock %}
